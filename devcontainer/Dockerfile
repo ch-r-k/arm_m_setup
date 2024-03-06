@@ -31,22 +31,26 @@ RUN apt-get update && \
     zlib1g-dev \
     libffi-dev \
     git \
-    cmake
+    cmake \
+    clang-format \
+    clang-tidy
 
 ## Python
-# download and install
+# download 
 RUN wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz \
     && tar -xf Python-3.8.18.tgz \
     && rm Python-3.8.18.tgz
 
-# creat symbolic link
-RUN cd Python-3.8.18 \
+# install and creat symbolic link
+RUN cd /Python-3.8.18 \
     && ./configure --enable-optimizations --with-lto --enable-shared --prefix=/usr/local \
+    && make -j 4 \
+    && make altinstall \
     && ln -s /usr/local/lib/libpython3.8.so.1.0 /usr/lib/x86_64-linux-gnu
 
 ## ARM toolchain
 # download and install
-RUN ARM_TOOLCHAIN_VERSION=$(curl -s https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads | grep -Po '<h4>Version \K.+(?=</h4>)') && \
+RUN ARM_TOOLCHAIN_VERSION="13.2.rel1" && \
     curl -Lo gcc-arm-none-eabi.tar.xz "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-x86_64-arm-none-eabi.tar.xz" && \
     mkdir /opt/gcc-arm-none-eabi && \
     tar xf gcc-arm-none-eabi.tar.xz --strip-components=1 -C /opt/gcc-arm-none-eabi
@@ -56,8 +60,8 @@ ENV PATH=$PATH:/opt/gcc-arm-none-eabi/bin
 
 ## Jlink tools
 # download and install
-RUN wget --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/jlink/JLink_Linux_V794g_x86_64.deb \
-    && dpkg --unpack JLink_Linux_V794g_x86_64.deb \
+RUN wget --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb \
+    && dpkg --unpack JLink_Linux_x86_64.deb \
     && rm -f /var/lib/dpkg/info/jlink.postinst \
     && dpkg --configure jlink \
     && apt install -yf
