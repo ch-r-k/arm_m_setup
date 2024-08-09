@@ -27,5 +27,5 @@
 		}
 	},
 
-	"postAttachCommand": "bash tools/scripts/setup-devcontainer-env.sh"
+	"postAttachCommand": "bash arm_setup/tools/scripts/setup-devcontainer-env.sh"
 }
