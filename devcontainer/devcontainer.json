@@ -3,29 +3,27 @@
 {
 	"name": "ARM Cortex-M Development",
 	"dockerFile": "Dockerfile",
-	"customizations":
-	{
-		"vscode": 
-		{
-			"extensions": 
-			[
-				"ms-vscode.cpptools",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"llvm-vs-code-extensions.vscode-clangd",
 				"mcu-debug.debug-tracker-vscode",
 				"mcu-debug.peripheral-viewer",
 				"marus25.cortex-debug",
 				"ms-vscode.cmake-tools",
 				"streetsidesoftware.code-spell-checker",
 				"eamodio.gitlens",
-        		"mhutchie.git-graph",
-        		"ms-vscode.hexeditor",
+				"mhutchie.git-graph",
+				"ms-vscode.hexeditor",
 				"xaver.clang-format"
 			],
-			"settings": 
-			{
-				"dockerRunArgs": ["-m", "1024M"]
+			"settings": {
+				"dockerRunArgs": [
+					"-m",
+					"1024M"
+				]
 			}
 		}
 	},
-
 	"postAttachCommand": "bash arm_setup/tools/scripts/setup-devcontainer-env.sh"
 }

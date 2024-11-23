@@ -32,6 +32,8 @@ RUN apt-get update && \
     libffi-dev \
     git \
     cmake \
+    clang \
+    clangd \
     clang-format \
     clang-tidy
 

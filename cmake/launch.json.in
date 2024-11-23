@@ -18,7 +18,7 @@
         "showDevDebugOutput": "both",
         "device": "STM32L476RG",
         "interface": "swd",
-        //"svdFile": "${workspaceRoot}/sdk/ONSemiconductor/svd/rsl10.svd",
+        "svdFile": "${workspaceRoot}/src/hardware/platform/stm32l476xx.svd",
         "rttConfig": {
           "enabled": true,
           "address": "auto",
