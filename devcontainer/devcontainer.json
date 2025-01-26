@@ -15,7 +15,8 @@
 				"eamodio.gitlens",
 				"mhutchie.git-graph",
 				"ms-vscode.hexeditor",
-				"xaver.clang-format"
+				"xaver.clang-format",
+				"jebbs.plantuml"
 			],
 			"settings": {
 				"dockerRunArgs": [

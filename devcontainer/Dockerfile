@@ -35,7 +35,8 @@ RUN apt-get update && \
     clang \
     clangd \
     clang-format \
-    clang-tidy
+    clang-tidy \
+    plantuml
 
 ## Python
 # download 
