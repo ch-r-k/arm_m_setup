@@ -3,6 +3,7 @@ FROM debian:bullseye-slim
 # Install necessary dependencies
 RUN apt-get update && \
     apt-get install -y \ 
+    sudo \
     curl \ 
     build-essential \ 
     wget \
@@ -38,37 +39,49 @@ RUN apt-get update && \
     clang-tidy \
     plantuml
 
+    # Create a new user and grant sudo privileges
+RUN useradd -m -s /bin/bash vscode && \
+echo "vscode ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Set the working directory
+WORKDIR /home/vscode
+
 ## Python
 # download 
 RUN wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz \
-    && tar -xf Python-3.8.18.tgz \
-    && rm Python-3.8.18.tgz
+    && tar -xf Python-3.8.18.tgz && rm Python-3.8.18.tgz
 
-# install and creat symbolic link
-RUN cd /Python-3.8.18 \
-    && ./configure --enable-optimizations --with-lto --enable-shared --prefix=/usr/local \
-    && make -j 4 \
+WORKDIR /home/vscode/Python-3.8.18
+RUN ./configure --enable-optimizations --with-lto --enable-shared --prefix=/usr/local \
+    && make -j$(nproc) \
     && make altinstall \
     && ln -s /usr/local/lib/libpython3.8.so.1.0 /usr/lib/x86_64-linux-gnu
 
-## ARM toolchain
-# download and install
+## ARM Toolchain Installation
+WORKDIR /home/vscode
 RUN ARM_TOOLCHAIN_VERSION="13.2.rel1" && \
     curl -Lo gcc-arm-none-eabi.tar.xz "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-x86_64-arm-none-eabi.tar.xz" && \
     mkdir /opt/gcc-arm-none-eabi && \
-    tar xf gcc-arm-none-eabi.tar.xz --strip-components=1 -C /opt/gcc-arm-none-eabi
+    tar xf gcc-arm-none-eabi.tar.xz --strip-components=1 -C /opt/gcc-arm-none-eabi && \
+    rm gcc-arm-none-eabi.tar.xz
 
 # Add ARM toolchain to PATH
 ENV PATH=$PATH:/opt/gcc-arm-none-eabi/bin
 
-## Jlink tools
-# download and install
-RUN wget --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb \
+## J-Link Tools Installation
+WORKDIR /home/vscode
+RUN wget --post-data 'accept_license_agreement=accepted&non_emb_ctr=confirmed&submit=Download+software' \
+    https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb \
     && dpkg --unpack JLink_Linux_x86_64.deb \
     && rm -f /var/lib/dpkg/info/jlink.postinst \
     && dpkg --configure jlink \
-    && apt install -yf
+    && apt install -yf && rm JLink_Linux_x86_64.deb
 
-# Add Jlink tools to PATH
+# Add JLink tools to PATH
 ENV PATH="/opt/SEGGER/JLink:${PATH}"
 
+# Switch to non-root user
+USER vscode
+WORKDIR /home/vscode
+
+CMD ["/bin/bash"]

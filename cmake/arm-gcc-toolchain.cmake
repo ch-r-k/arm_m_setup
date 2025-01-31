@@ -7,17 +7,7 @@ elseif(UNIX OR APPLE)
     set(UTIL_SEARCH_CMD which)
 endif()
 
-set(TOOLCHAIN_DIR "/opt/gcc-arm-none-eabi/bin")
 set(TOOLCHAIN_PREFIX "arm-none-eabi-")
-LIST(APPEND CMAKE_PREFIX_PATH "${TOOLCHAIN_DIR}")
-
-execute_process(
-  COMMAND cmake -E env "PATH=${TOOLCHAIN_DIR}/bin:$ENV{PATH}" ${UTIL_SEARCH_CMD} ${TOOLCHAIN_PREFIX}gcc
-  OUTPUT_VARIABLE BINUTILS_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-#cmake_path(GET BINUTILS_PATH PARENT_PATH ARM_TOOLCHAIN_DIR)
 
 set(SPECS "-lc -lm -lnosys -specs=nosys.specs -specs=nano.specs")
 
@@ -43,9 +33,3 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT  "-O2 -g -Wall ${SPECS}")
 
 find_program(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy DOC "objcopy tool")
 find_program(CMAKE_SIZE_UTIL ${TOOLCHAIN_PREFIX}size DOC "size tool")
-
-set(CMAKE_SYSROOT ${ARM_TOOLCHAIN_DIR}/../arm-none-eabi)
-set(CMAKE_FIND_ROOT_PATH ${BINUTILS_PATH})
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

@@ -16,7 +16,7 @@
         "runToEntryPoint": "main",
         "servertype": "jlink",
         "showDevDebugOutput": "both",
-        "device": "STM32L476RG",
+        "device": "@DEVICE@",
         "interface": "swd",
         "svdFile": "${workspaceRoot}/src/hardware/platform/stm32l476xx.svd",
         "rttConfig": {
