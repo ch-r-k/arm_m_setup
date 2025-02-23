@@ -9,15 +9,14 @@ if (NOT BINUTILS_PATH)
     message(FATAL_ERROR "ARM GCC toolchain not found")
 endif ()
 
-get_filename_component(ARM_TOOLCHAIN_DIR ${BINUTILS_PATH} DIRECTORY)
+cmake_path(GET BINUTILS_PATH PARENT_PATH ARM_TOOLCHAIN_DIR)
 set(ARM_GCC_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
 execute_process(COMMAND ${ARM_GCC_C_COMPILER} -print-sysroot
     OUTPUT_VARIABLE ARM_GCC_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 # get GNU ARM GCC version
 execute_process(COMMAND ${ARM_GCC_C_COMPILER} --version
     OUTPUT_VARIABLE ARM_GCC_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REGEX MATCH " [0-9]+\.[0-9]+\.[0-9]+ " ARM_GCC_VERSION ${ARM_GCC_VERSION})
+string(REGEX MATCH " [0-9]+\.[0-9]+\.[0-9]+" ARM_GCC_VERSION ${ARM_GCC_VERSION})
 string(STRIP ${ARM_GCC_VERSION} ARM_GCC_VERSION)
 
 # set compiler triple
@@ -31,17 +30,15 @@ set(CMAKE_CXX_COMPILER_TARGET ${triple})
 
 set(CMAKE_C_FLAGS_INIT " -B${ARM_TOOLCHAIN_DIR}")
 set(CMAKE_CXX_FLAGS_INIT " -B${ARM_TOOLCHAIN_DIR} ")
-
 # Without that flag CMake is not able to pass test compilation check
 if (${CMAKE_VERSION} VERSION_EQUAL "3.6.0" OR ${CMAKE_VERSION} VERSION_GREATER "3.6")
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 else ()
-    set(CMAKE_EXE_LINKER_FLAGS_INIT "-nostdlib --rtlib=libgcc --unwindlib=libgcc")
+    set(CMAKE_EXE_LINKER_FLAGS_INIT "-nostdlib")
 endif ()
 
 set(CMAKE_OBJCOPY llvm-objcopy CACHE INTERNAL "objcopy tool")
 set(CMAKE_SIZE_UTIL llvm-size CACHE INTERNAL "size tool")
-
 # Default C compiler flags
 set(CMAKE_C_FLAGS_DEBUG_INIT "-g3 -Og -Wall -pedantic -DDEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG_INIT}" CACHE STRING "" FORCE)
@@ -51,7 +48,6 @@ set(CMAKE_C_FLAGS_MINSIZEREL_INIT "-Oz -Wall")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL_INIT}" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELWITHDEBINFO_INIT "-O2 -g -Wall")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO_INIT}" CACHE STRING "" FORCE)
-
 # Default C++ compiler flags
 set(TOOLCHAIN_CXX_INCLUDE_DIRS_FLAG "")
 string(APPEND TOOLCHAIN_CXX_INCLUDE_DIRS_FLAG " -cxx-isystem ${ARM_GCC_SYSROOT}/include/c++/${ARM_GCC_VERSION}")
@@ -71,3 +67,23 @@ set(CMAKE_FIND_ROOT_PATH ${ARM_GCC_SYSROOT})
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+
+
+if (ARCH_FLAGS)
+    execute_process(COMMAND ${ARM_GCC_C_COMPILER} ${ARCH_FLAGS} -print-libgcc-file-name
+            OUTPUT_VARIABLE __ARM_GCC_LIBGCC
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    cmake_path(GET __ARM_GCC_LIBGCC PARENT_PATH LIBGCC_DIR)
+
+    execute_process(COMMAND ${ARM_GCC_C_COMPILER} ${ARCH_FLAGS} -print-multi-directory
+            OUTPUT_VARIABLE ARM_GCC_MULTIDIR
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    if (NOT TARGET toolchain)
+        add_library(toolchain INTERFACE)
+        target_link_directories(toolchain INTERFACE "${LIBGCC_DIR}")
+        target_link_libraries(toolchain INTERFACE -nostdlib -lc_nano -lnosys -lgcc -lstdc++_nano -lm)
+
+        target_sources(toolchain INTERFACE "${LIBGCC_DIR}/crti.o" "${ARM_GCC_SYSROOT}/lib/${ARM_GCC_MULTIDIR}/crt0.o" "${LIBGCC_DIR}/crtbegin.o" "${LIBGCC_DIR}/crtend.o" "${LIBGCC_DIR}/crtn.o")
+    endif ()
+endif ()
