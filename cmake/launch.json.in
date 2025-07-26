@@ -30,6 +30,33 @@
             }
           ]
         }
-      }
+      },
+      {
+      "type": "cortex-debug",
+      "request": "launch",
+      "name": "Remote OpenOCD",
+      "cwd": "${workspaceRoot}",
+      "armToolchainPath": "/opt/gcc-arm-none-eabi/bin/",
+      "executable": "$<TARGET_FILE:@PROJECT@>",
+      "servertype": "external",
+      "gdbTarget": "host.docker.internal:3333",
+      "interface": "swd",
+      "runToEntryPoint": "main",
+      "device": "@DEVICE@",  
+      "svdFile": "${workspaceRoot}/src/hardware/platform/stm32l476xx.svd",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+      "showDevDebugOutput": "both"
+    }
     ]
   }
+
