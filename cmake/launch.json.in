@@ -1,37 +1,34 @@
-  {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "cortex-debug",
-        "request": "launch",
-        "name": "J-Link",
-        "cwd": "${workspaceRoot}",
-        "armToolchainPath": "/opt/gcc-arm-none-eabi/bin/",
-        "executable": "$<TARGET_FILE:@PROJECT@>",
-        "serverpath": "JLinkGDBServerCLExe",
-        "ipAddress": "@JLINK_IP@",
-        "runToEntryPoint": "main",
-        "servertype": "jlink",
-        "showDevDebugOutput": "both",
-        "device": "@DEVICE@",
-        "interface": "swd",
-        "svdFile": "${workspaceRoot}/src/hardware/platform/stm32l476xx.svd",
-        "rttConfig": {
-          "enabled": true,
-          "address": "auto",
-          "decoders": [
-            {
-              "label": "",
-              "port": 0,
-              "type": "console"
-            }
-          ]
-        }
-      },
-      {
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "cortex-debug",
+      "request": "launch",
+      "name": "J-Link",
+      "cwd": "${workspaceRoot}",
+      "armToolchainPath": "/opt/gcc-arm-none-eabi/bin/",
+      "executable": "$<TARGET_FILE:@PROJECT@>",
+      "serverpath": "JLinkGDBServerCLExe",
+      "ipAddress": "@JLINK_IP@",
+      "runToEntryPoint": "main",
+      "servertype": "jlink",
+      "showDevDebugOutput": "both",
+      "device": "@DEVICE@",
+      "interface": "swd",
+      "svdFile": "${workspaceRoot}/src/hardware/platform/stm32l476xx.svd",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
       "type": "cortex-debug",
       "request": "launch",
       "name": "Remote OpenOCD",
@@ -56,7 +53,22 @@
         ]
       },
       "showDevDebugOutput": "both"
+    },
+    {
+      "name": "Host Application Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/workspaces/open_trace_analyzer/build/open_trace_analyzer",
+      "args": [], // Command-line args if any
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
-    ]
-  }
-
+  ]
+}
