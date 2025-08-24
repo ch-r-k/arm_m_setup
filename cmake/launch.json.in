@@ -58,7 +58,23 @@
       "name": "Host Application Debug",
       "type": "cppdbg",
       "request": "launch",
-      "program": "/workspaces/open_trace_analyzer/build/open_trace_analyzer",
+      "program": "$<TARGET_FILE:@PROJECT@>",
+      "args": [], // Command-line args if any
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      "name": "Host Test Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "program":  "$<TARGET_FILE:@PROJECT@>_tests",
       "args": [], // Command-line args if any
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
